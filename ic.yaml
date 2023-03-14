@@ -1,0 +1,5 @@
+ icons_launcher:
+  image_path: "assets/images/top_girl.jpg"
+  platforms:
+    android:
+      enable: true
