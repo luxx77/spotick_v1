@@ -3,11 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:spoti_player_1_2/configs/space.dart';
 import 'package:spoti_player_1_2/constants/image_pathes.dart';
 import 'package:spoti_player_1_2/screens/search_screen.dart';
-import 'package:spoti_player_1_2/widgets/search_field.dart';
 
-AppBar mainAppBar(BuildContext context) {
-  return AppBar(
-    backgroundColor: Color.fromARGB(255, 17, 16, 16),
+class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const MainAppBar({Key? key}) : super(key: key);
+
+  @override
+  Size get preferredSize => const Size(double.infinity, 56);
+
+  @override
+  Widget build(BuildContext context) {
+     return AppBar(
+    backgroundColor: const Color.fromARGB(255, 17, 16, 16),
     centerTitle: true,
     toolbarHeight: 48.h,
     actions: [
@@ -16,7 +22,7 @@ AppBar mainAppBar(BuildContext context) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SearchScreen(),
+              builder: (context) => const SearchScreen(),
             ),
           );
         },
@@ -42,4 +48,5 @@ AppBar mainAppBar(BuildContext context) {
       ),
     ),
   );
+  }
 }

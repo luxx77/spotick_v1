@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,7 +46,7 @@ class RichTitleText extends StatelessWidget {
             fontFamily: 'spoti',
             fontSize: size - 2.sp,
             color:
-                isSelected ? selectedColor : Color.fromARGB(255, 190, 183, 183),
+                isSelected ? selectedColor : const Color.fromARGB(255, 190, 183, 183),
           ),
         )
       ],

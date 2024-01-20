@@ -15,11 +15,13 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   static final theme = ThemeData(
-      textSelectionTheme: const TextSelectionThemeData(
-    selectionHandleColor: Colors.transparent,
-    cursorColor: Colors.amber,
-    selectionColor: selectedColor,
-  ));
+    useMaterial3: false,
+    textSelectionTheme: const TextSelectionThemeData(
+      selectionHandleColor: Colors.transparent,
+      cursorColor: selectedColor,
+      selectionColor: selectedColor,
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     log('mainBuild');

@@ -100,3 +100,4 @@ class SearchHead extends StatelessWidget {
     );
   }
 }
+

@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: controller,
       physics: const BouncingScrollPhysics(),
       childrenDelegate: SliverChildListDelegate([
-        HomeHead(),
+        const HomeHead(),
         ..._builders.songsBuilder(
           666,
         )

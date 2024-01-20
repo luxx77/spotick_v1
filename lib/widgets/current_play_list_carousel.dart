@@ -35,35 +35,40 @@ class _SliderCarouselState extends State<SliderCarousel> {
   final handMannager = getIt<HandlerManager>(instanceName: 'handllerManner');
   @override
   Widget build(BuildContext context) {
-    return CarouselSlider.builder(
-      carouselController: provider.carouselController,
-      options: CarouselOptions(
-        height: 370.h,
-        initialPage: provider.currentIndex,
-        enableInfiniteScroll: true,
-        autoPlay: false,
-        enlargeCenterPage: true,
-        viewportFraction: 0.8,
-        onPageChanged: (index, reason) async {
-          try {
-            log('${reason.name} reason name');
-            if (reason.name == 'manual') {
-              await handMannager.playAtIndex(index);
-              return;
-            }
-          } catch (e) {
-            log('Carousell Erro change $e');
-          }
-        },
-      ),
-      itemCount: provider.currentPlayList.length,
-      itemBuilder: (context, index, realIndex) {
-        return SongImageWidget(
-          id: provider.currentPlayList[index].id,
-          height: 370.h,
-          width: 335.w,
-        );
-      },
-    );
+    return ValueListenableBuilder(
+        valueListenable: handMannager.handler!.shuffleOn,
+        builder: (context, shuffleOn, child) {
+          return CarouselSlider.builder(
+            carouselController: provider.carouselController,
+            options: CarouselOptions(
+              height: 370.h,
+              initialPage: provider.currentIndex,
+              enableInfiniteScroll: true,
+              autoPlay: false,
+              enlargeCenterPage: true,
+              viewportFraction: 0.8,
+              onPageChanged: (index, reason) async {
+                try {
+                  log('${reason.name} reason name');
+                  if (reason.name == 'manual') {
+                    await handMannager.playAtIndex(
+                        index, provider.currentPlayList[index].id);
+                    return;
+                  }
+                } catch (e) {
+                  log('Carousell Erro change $e');
+                }
+              },
+            ),
+            itemCount: provider.currentPlayList.length,
+            itemBuilder: (context, index, realIndex) {
+              return SongImageWidget(
+                id: provider.currentPlayList[index].id,
+                height: 370.h,
+                width: 335.w,
+              );
+            },
+          );
+        });
   }
 }

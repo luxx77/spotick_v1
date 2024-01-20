@@ -3,9 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:spoti_player_1_2/configs/space.dart';
 import 'package:spoti_player_1_2/constants/colors.dart';
-import 'package:spoti_player_1_2/screens/main_scaffold.dart';
 
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key});
@@ -20,7 +18,6 @@ class SplashScreen extends StatelessWidget {
   final random = Random();
   @override
   Widget build(BuildContext context) {
-    dev.log('DomDomDOm');
     final height = MediaQuery.of(context).size.height;
     final index = random.nextInt(titles.length);
     return Scaffold(

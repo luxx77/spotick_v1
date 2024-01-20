@@ -24,7 +24,7 @@ class TopProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: () {
-        _handManager.newLogs();
+        _handManager.thisLogs();
       },
       onTap: () async {
         log('Taap');
@@ -45,10 +45,9 @@ class TopProductWidget extends StatelessWidget {
             333,
           );
         }
-        await _handManager.loggs();
 
         if (song.id != currentSongId) {
-          _handManager.playAtIndex(index);
+          _handManager.playAtIndex(index, song.id);
         }
       },
       child: Container(

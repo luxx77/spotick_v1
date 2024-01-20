@@ -5,14 +5,16 @@ import 'package:audiotagger/audiotagger.dart';
 import 'package:flutter/services.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spoti_player_1_2/Futures/handler_manager.dart';
 import 'package:spoti_player_1_2/providers/audio_service.dart';
 import 'package:spoti_player_1_2/providers/main_provider.dart';
 
 class Futures {
   Futures() {
-    // sihgudsgdijfing 
+    // sihgudsgdijfing
   }
+  SharedPreferences? prefs;
 
   MainProvider? provider;
   final _audioQuery = OnAudioQuery();
@@ -21,16 +23,17 @@ class Futures {
   String? directoryPath;
   Future<void> initAll() async {
     provider = getIt<MainProvider>(instanceName: 'provider');
+
     await getDirectoryPath();
-    setDefImage();
+    await setDefImage();
     await getSongs();
 
     provider!.setPlayList(666, provider!.allSongs!);
     provider!.setPlayList(
         333, List.generate(10, (index) => provider!.allSongs![index]));
-    provider!.setPlayList(
-        555, List.generate(30, (index) => provider!.allSongs![index]));
+    provider!.setPlayList(555, await getFavors());
     await loadAllArtWork();
+
     getIt.registerSingleton<HandlerManager>(_handlerManager..initHandlerMann(),
         instanceName: 'handllerManner');
     _handlerManager.setCurrentSong(provider!.allSongs!.first);
@@ -99,17 +102,70 @@ class Futures {
 
   Future<void> setDefImage() async {
     final file = File('$directoryPath/defImg.jpg');
-    // if (!await file.exists()) {
-    await file.create();
-    final img = await rootBundle.load('assets/images/top_girl.jpg');
-    file.writeAsBytesSync(
-      img.buffer.asUint8List(
-        img.offsetInBytes,
-        img.lengthInBytes,
-      ),
-    );
+    if (!await file.exists()) {
+      await file.create();
+      final img = await rootBundle.load('assets/images/top_girl.jpg');
+      await file.writeAsBytes(
+        img.buffer.asUint8List(
+          img.offsetInBytes,
+          img.lengthInBytes,
+        ),
+      );
+      log('${file.path} defPath');
+    }
     getIt.registerSingleton<String>(file.path, instanceName: 'defImagePath');
-    log('${file.path} defPath');
-    // }
+  }
+
+  Future<List<SongModel>> getFavors() async {
+    prefs = await SharedPreferences.getInstance();
+    final favors = prefs!.getString('favors');
+    if (favors == null) {
+      return [];
+    }
+    final favorIds = favors.split(',');
+    List<SongModel> list = List.empty();
+    final ides = provider!.allSongs!.map((e) => e.id).toList();
+    for (var i in favorIds) {
+      final theIndex = ides.indexOf(int.parse(i));
+      list.add(provider!.allSongs![theIndex]);
+    }
+    return [];
+  }
+
+  Future<void> addOrRemoveFavors() async {
+    final song = provider!.currentSong.value;
+    bool exists = false;
+    final favorSongs = provider!.playLists[555];
+    final favorIds = favorSongs!.map((e) => e.id).toList();
+    int index = 0;
+    for (var i in favorIds) {
+      if (i == song.id) {
+        exists = true;
+        break;
+      }
+      index++;
+    }
+
+    if (exists) {
+      favorSongs.removeAt(index);
+      if (provider!.playListid == 555) {}
+    } else {
+      favorSongs.add(song);
+    }
+    final data = favorSongs.map((e) => e.id).toList().join(',');
+
+    await prefs!.setString('favors', data);
+    provider!.favorChanges.value = !provider!.favorChanges.value;
+  }
+
+  bool existInFavor() {
+    final id = provider!.currentSong.value.id;
+    final favorIds = provider!.playLists[555]!.map((e) => e.id).toList();
+    for (var i in favorIds) {
+      if (i == id) {
+        return true;
+      }
+    }
+    return false;
   }
 }

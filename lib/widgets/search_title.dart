@@ -44,7 +44,7 @@ class SearchTTitle extends StatelessWidget {
                         TextSpan(text: title![0]),
                         TextSpan(
                             text: title![1],
-                            style: TextStyle(color: selectedColor)),
+                            style: const TextStyle(color: selectedColor)),
                         TextSpan(
                           text: title![2],
                         ),
@@ -59,7 +59,7 @@ class SearchTTitle extends StatelessWidget {
                     fontSize: 13.sp,
                     color: isSelected
                         ? selectedColor
-                        : Color.fromARGB(255, 190, 183, 183),
+                        : const Color.fromARGB(255, 190, 183, 183),
                   ),
                 )
               ]);

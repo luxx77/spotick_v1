@@ -1,9 +1,6 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 import 'package:spoti_player_1_2/Futures/handler_manager.dart';
 import 'package:spoti_player_1_2/configs/space.dart';
 import 'package:spoti_player_1_2/constants/colors.dart';
@@ -24,8 +21,6 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _provider = getIt<MainProvider>(instanceName: providerName);
 
-  
-
   final _handManager = getIt<HandlerManager>(instanceName: 'handllerManner');
   final _builders = SongBuilders();
   @override
@@ -44,22 +39,20 @@ class _SearchScreenState extends State<SearchScreen> {
                     size: 20.sp,
                   )))),
       body: ValueListenableBuilder(
-          valueListenable: _provider.searchQuery,
-          builder: (context, query, child) {
-            // _handManager.reSetQueue(matchSongs, 900); 
-            return ListView.custom(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
-              childrenDelegate: SliverChildListDelegate(
-                [
-                  const SearchHead(),
-                 ..._builders.searchSongBuilder()
-                ],
-              ),
-            );
-          }),
+        valueListenable: _provider.searchQuery,
+        builder: (context, query, child) {
+          // _handManager.reSetQueue(matchSongs, 900);
+          return ListView.custom(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            childrenDelegate: SliverChildListDelegate(
+              [const SearchHead(), ..._builders.searchSongBuilder()],
+            ),
+          );
+        },
+      ),
     );
   }
 }

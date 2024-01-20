@@ -32,7 +32,7 @@ class ListenablePlayPause extends StatelessWidget {
               color: selectedColor,
               child: InkWell(
                 splashColor: MaterialStateColor.resolveWith(
-                    (states) => Color.fromRGBO(255, 255, 255, 0.4)),
+                    (states) => const Color.fromRGBO(255, 255, 255, 0.4)),
                 onTap: () {
                   log('playTap');
                   if (_provider.isPlaying.value) {

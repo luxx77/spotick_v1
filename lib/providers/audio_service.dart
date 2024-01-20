@@ -2,8 +2,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import 'package:spoti_player_1_2/constants/pathes.dart';
+import 'package:spoti_player_1_2/providers/main_provider.dart';
 
 GetIt getIt = GetIt.instance;
 Future initServices() async {
@@ -27,6 +31,11 @@ Future<MyAudioHandler> initAudioService() async {
 class MyAudioHandler extends BaseAudioHandler {
   final player = AudioPlayer()..setLoopMode(LoopMode.all);
   final _playlist = ConcatenatingAudioSource(children: []);
+  MainProvider? provider;
+  void initProvider() {
+    provider = getIt<MainProvider>(instanceName: providerName);
+    _defPath = getIt<String>(instanceName: 'defImagePath');
+  }
 
   MyAudioHandler() {
     _loadEmptyPlaylist();
@@ -223,25 +232,12 @@ class MyAudioHandler extends BaseAudioHandler {
     }
   }
 
-  // bool played = false;
-  // Stream<bool> playingStream() {
-  //   return player.playingStream;
-  // }
-
-  // Stream<Duration> positionStream() {
-  //   return player.positionStream;
-  // }
-
-  // Stream<Duration?> duraStream() {
-  //   return player.durationStream;
-  // }
   void some() {
     for (var i in queue.value) {
       if (player.sequence![player.currentIndex!].tag != i) {
         queue.value.removeAt(0);
       }
     }
-    
   }
 
   @override
@@ -279,5 +275,178 @@ class MyAudioHandler extends BaseAudioHandler {
 
     super.stop();
     exit(0);
+  }
+
+  final shuffleOn = ValueNotifier(false);
+  Future<void> shuffleClear() async {
+    final theItem = fromSongModel(provider!.currentSong.value);
+    queue.add([theItem]);
+    log('${queue.value.length} queue length afterClear');
+    log('${queue.value.first.title} queue First Title');
+  }
+
+  int findShuffledIndex(List<SongModel> songs) {
+    int index = 0;
+    for (var i in songs) {
+      if (i.id == provider!.currentSong.value.id) {
+        return index;
+      }
+      index++;
+    }
+    return 999999999;
+  }
+
+  // Future<void> addShuffledQueueItems() async {
+  //   randomInts.remove(findShuffledIndex());
+  //   List<MediaItem> items = [];
+  //   for (int i = 0; i < provider!.currentPlayList.length - 1; i++) {
+  //     final addItem = fromSongModel(provider!.currentPlayList[randomInts[i]]);
+  //     items.add(addItem);
+  //   }
+  //   await addQueueItems(items);
+  //   log('${queue.value.length}  queueLength afterAdd Second');
+  // }
+
+  void clearPlayList() {
+    int removeIndex = 0;
+    final theTag =
+        _createAudioSource(fromSongModel(provider!.currentSong.value)).tag;
+    while (_playlist.length != 1) {
+      if (_playlist.sequence[removeIndex].tag == theTag) {
+        log('_playList Changes Removeindex');
+        removeIndex++;
+      }
+      _playlist.removeAt(removeIndex);
+    }
+    log('${player.sequence!.length}  _playList afterClear');
+    log('${player.sequence!.first.tag.title}  _playListFirst title');
+  }
+
+  bool first = false;
+  Future setLoop() async {
+    log('Looop Settting');
+    final List<SongModel> thePlayList =
+        List.from(provider!.playLists[provider!.playListid]!);
+    final place = findShuffledIndex(thePlayList);
+    final List<SongModel> start = List.generate(place, (index) {
+      return thePlayList[index];
+    });
+    final List<SongModel> end =
+        List.generate(thePlayList.length - (place + 1), (index) {
+      return thePlayList[thePlayList.length - (index + 1)];
+    });
+    queue.add(List.generate(
+        thePlayList.length, (index) => fromSongModel(thePlayList[index])));
+    _playlist.insertAll(
+        0,
+        List.generate(start.length, (index) {
+          return _createAudioSource(fromSongModel(start[index]));
+        }));
+    _playlist.addAll(
+        List.generate(
+            end.length,
+            (index) => _createAudioSource(
+                fromSongModel(end[end.length - (index + 1)]))));
+    provider!.currentPlayList = List.from([
+      ...start,
+      ...List.generate(end.length, (index) => end[end.length - (index + 1)])
+    ]);
+    provider!.currentPlayList.insert(start.length, provider!.currentSong.value);
+
+    log('${findShuffledIndex(thePlayList)} insertIndex');
+    log(queue.value.length.toString());
+    log(provider!.currentPlayList.length.toString());
+    log(_playlist.length.toString());
+
+    log(queue.value.map((e) => e.title).toList().toString());
+    log(provider!.currentPlayList.map((e) => e.title).toList().toString());
+    log(_playlist.children
+        .map((e) => e.sequence.map((e) => e.tag.title))
+        .toList()
+        .toString());
+    log('${player.currentIndex} playerCurrentIndex');
+    log('${provider!.currentIndex} providerCurrentIndex');
+    shuffleOn.value = false;
+  }
+
+  void newLogs() async {
+    log(_playlist.children
+        .map((e) => e.sequence.map((e) => e.tag.title))
+        .toList()
+        .toString());
+    log(player.sequence!.map((e) => e.tag.title).toList().toString());
+    log('${player.currentIndex} playerCurrentIndex');
+    log('${player.sequence!.length} length');
+
+    log('${provider!.currentIndex} providerCurrentIndex');
+    log('${player.sequence!.last.tag.title} lasyTitle');
+    // await player.seek(Duration.zero, index: 9);
+    // player.play();
+  }
+
+  Future<void> changeMode() async {
+    shuffleClear();
+    clearPlayList();
+    if (shuffleOn.value) {
+      await setLoop();
+      return;
+    }
+    setShuffle();
+  }
+
+  Future<void> setShuffle() async {
+    List<SongModel> songs = List.from(provider!.currentPlayList);
+    songs.shuffle();
+    songs.remove(provider!.currentSong.value);
+    provider!.currentPlayList = List.from(songs);
+    provider!.currentPlayList.insert(0, provider!.currentSong.value);
+    // log('${songs.length} ${songs.first.title} songsService');
+    // log('${provider!.currentPlayList}');
+    shuffleOn.value = !shuffleOn.value;
+    await addQueueItems(songs
+        .map((e) => MediaItem(
+              id: '${e.id}',
+              title: e.title,
+              duration: Duration(milliseconds: e.duration!),
+              artUri: Uri.file(provider!.songArtworks[e.id] ?? _defPath!),
+              displayTitle: e.title,
+              displaySubtitle: e.artist,
+              album: e.album,
+              artist: e.artist != '<unknown>' ? e.artist : 'SubNull',
+              extras: {'uri': e.data},
+            ))
+        .toList());
+    shuffleOn.value = true;
+    // addShuffledQueueItems();
+    // final thisIndex = findShuffledIndex();
+    // log('$thisIndex thisIndex');
+    // for (int i = 0; i < player.sequence!.length; i++) {
+    //   if (player.sequence![i].tag.id !=
+    //       player.sequence![player.shuffleIndices![player.currentIndex!]]) {
+    //     final thisSongIndex = player.shuffleIndices![i];
+    //     if (thisSongIndex < player.shuffleIndices![player.currentIndex!]) {
+    //       queue.value.add(player.sequence![i].tag);
+    //     }
+    //     if (thisSongIndex > player.shuffleIndices![player.currentIndex!]) {
+    //       queue.value.insert(0, player.sequence![i].tag);
+    //     }
+    //   }
+    // }
+    // await player.setShuffleModeEnabled(true);
+  }
+
+  String? _defPath;
+  MediaItem fromSongModel(SongModel e) {
+    return MediaItem(
+      id: '${e.id}',
+      title: e.title,
+      duration: Duration(milliseconds: e.duration!),
+      artUri: Uri.file(provider!.songArtworks[e.id] ?? _defPath!),
+      displayTitle: e.title,
+      displaySubtitle: e.artist,
+      album: e.album,
+      artist: e.artist != '<unknown>' ? e.artist : 'SubNull',
+      extras: {'uri': e.data},
+    );
   }
 }

@@ -29,7 +29,6 @@ class _MainScaffoldState extends State<MainScaffold> {
   final _provider = MainProvider();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     // final provider = Provider.of<MainProvider>(context, listen: false);
     getIt.registerSingleton<MainProvider>(_provider, instanceName: 'provider');
@@ -49,13 +48,13 @@ class _MainScaffoldState extends State<MainScaffold> {
         return Scaffold(
           backgroundColor: scaffoldBackGround,
           extendBody: true,
-          appBar: mainAppBar(context),
+          appBar: const MainAppBar(),
           body: ValueListenableBuilder<int>(
               valueListenable: _provider.bodyIndex,
               builder: (context, index, child) {
                 return bodies[index];
               }),
-          bottomNavigationBar: NavBar(),
+          bottomNavigationBar: const NavBar(),
         );
       },
     );

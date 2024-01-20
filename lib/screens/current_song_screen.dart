@@ -9,17 +9,16 @@ import 'package:spoti_player_1_2/constants/pathes.dart';
 import 'package:spoti_player_1_2/providers/audio_service.dart';
 import 'package:spoti_player_1_2/providers/main_provider.dart';
 import 'package:spoti_player_1_2/widgets/current_play_list_carousel.dart';
+import 'package:spoti_player_1_2/widgets/favors_button.dart';
 import 'package:spoti_player_1_2/widgets/listenAbles/listen_able_play.dart';
 import 'package:spoti_player_1_2/widgets/listenAbles/listen_able_slider.dart';
 import 'package:spoti_player_1_2/widgets/listenAbles/looping_mood_button.dart';
 import 'package:spoti_player_1_2/widgets/rich_title_text.dart';
-import 'package:spoti_player_1_2/widgets/song_image_widget.dart';
 import 'package:spoti_player_1_2/widgets/song_options_widget.dart';
 
+// ignore: must_be_immutable
 class CurrentSongScreen extends StatelessWidget {
-  CurrentSongScreen({
-    super.key,
-  });
+  CurrentSongScreen();
   final play = ValueNotifier(false);
   final durValue = ValueNotifier(0.0);
   bool showLyrics = false;
@@ -50,7 +49,7 @@ class CurrentSongScreen extends StatelessWidget {
             ),
           ),
           actions: [
-            SongOptionsWidget(index: 2),
+            const SongOptionsWidget(index: 2),
             Space.hori(5),
           ],
         ),
@@ -82,13 +81,7 @@ class CurrentSongScreen extends StatelessWidget {
                           }),
                     ),
                     Space.hori(6),
-                    ImageIcon(
-                      const AssetImage(
-                        'assets/icons/favor.png',
-                      ),
-                      size: 25.sp,
-                      color: Colors.white,
-                    )
+                    const FavorsButton(),
                   ],
                 ),
               ),
@@ -107,7 +100,7 @@ class CurrentSongScreen extends StatelessWidget {
                   const ListenablePlayPause(),
                   Space.hori(30),
                   nextPrevIcon(true),
-                  Icon(
+                  const Icon(
                     Icons.ios_share,
                     color: Colors.white,
                   ),
@@ -137,27 +130,28 @@ class CurrentSongScreen extends StatelessWidget {
                     log('UpUp');
                   }
                 },
-                child: Container(
-                    margin: EdgeInsets.only(top: 0.h, left: 88.w),
-                    height: 60.h,
-                    width: 160.w,
-                    color: Colors.transparent,
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(Icons.keyboard_arrow_up_rounded,
-                            color: Colors.white, size: 26.sp),
-                        Text(
-                          'Lyrics',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'spoti',
-                              fontSize: 17.sp),
-                        ),
-                        Space.verti(4),
-                      ],
-                    )),
+                child: Center(
+                  child: Container(
+                      height: 60.h,
+                      width: 160.w,
+                      color: Colors.transparent,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.keyboard_arrow_up_rounded,
+                              color: Colors.white, size: 26.sp),
+                          Text(
+                            'Lyrics',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'spoti',
+                                fontSize: 17.sp),
+                          ),
+                          Space.verti(4),
+                        ],
+                      )),
+                ),
               )
             ],
           ),
@@ -195,11 +189,12 @@ Widget nextPrevIcon(bool next) {
           height: 30.h,
           width: 30.w,
           child: ImageIcon(
-              const AssetImage(
-                'assets/icons/spoti_next.png',
-              ),
-              color: Colors.white,
-              size: 26.sp),
+            const AssetImage(
+              'assets/icons/spoti_next.png',
+            ),
+            color: Colors.white,
+            size: 26.sp,
+          ),
         ),
       ),
     ),

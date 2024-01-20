@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:audiotagger/audiotagger.dart';
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -13,7 +12,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:spoti_player_1_2/screens/current_song_screen.dart';
 import 'package:spoti_player_1_2/widgets/build/songs_builder.dart';
 import 'package:spoti_player_1_2/widgets/rich_title_text.dart';
-import 'package:spoti_player_1_2/widgets/search_field.dart';
 import 'package:spoti_player_1_2/widgets/song_image_widget.dart';
 import 'package:spoti_player_1_2/widgets/song_options_widget.dart';
 
@@ -40,18 +38,14 @@ class SongWidget extends StatelessWidget {
     return '$minutes:${seconds % 60}';
   }
 
-  static final _handManager =
-      getIt<HandlerManager>(instanceName: 'handllerManner');
+  static final _handler = getIt<HandlerManager>(instanceName: 'handllerManner');
   static final _provider = getIt<MainProvider>(instanceName: providerName);
-  static final _tagger = Audiotagger();
-  static final _query = OnAudioQuery();
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onLongPress: () async {
-        final tags = await _tagger.readTags(path: song.data);
-        log(tags!.toMap().toString());
-        // _tagger.
+        _handler.handler!.newLogs();
       },
       onTap: () async {
         final currentSongId = _provider.currentSong.value.id;
@@ -72,22 +66,24 @@ class SongWidget extends StatelessWidget {
           if (searchTitle != null &&
               _provider.currentPlayList != SongBuilders.matchSong) {
             log('Match Resetting');
-            await _handManager.reSetQueue(
+            await _handler.reSetQueue(
                 _provider.playLists[playListId]!, playListId);
-            _handManager.playAtIndex(index!);
+            _handler.playAtIndex(index!, song.id);
+
             _provider.currentIndex = index!;
             _provider.currentSong.value = song;
             return;
           }
           if (_provider.playListid != playListId) {
             log('REsetting SongWidget');
-            await _handManager.reSetQueue(
+            await _handler.reSetQueue(
               _provider.playLists[playListId]!,
               playListId,
             );
           }
+
           if (songId != currentSongId) {
-            _handManager.playAtIndex(index!);
+            _handler.playAtIndex(index!, song.id);
             _provider.currentSong.value = song;
           }
         } catch (e) {
